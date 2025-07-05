@@ -39,6 +39,7 @@ namespace CosmicCuration.Player
             currentShootingState = ShootingState.NotFiring;
             GameService.Instance.GetUIService().UpdateHealthUI(currentHealth);
         }
+
         public void HandlePlayerInput()
         {
             HandlePlayerMovement();
@@ -73,6 +74,7 @@ namespace CosmicCuration.Player
             if (Input.GetKeyUp(KeyCode.Space))
                 currentShootingState = ShootingState.NotFiring;
         }
+
         private async void FireWeapon()
         {
             currentShootingState = ShootingState.Firing;
@@ -98,6 +100,7 @@ namespace CosmicCuration.Player
             bulletToFire.ConfigureBullet(fireLocation);
             GameService.Instance.GetSoundService().PlaySoundEffects(SoundType.PlayerBullet);
         }
+
         public void SetShieldState(ShieldState shieldStateToSet) => currentShieldState = shieldStateToSet;
 
         public void ToggleDoubleTurret(bool doubleTurretActive) => currentWeaponMode = doubleTurretActive ? WeaponMode.DoubleTurret : WeaponMode.SingleCanon;
