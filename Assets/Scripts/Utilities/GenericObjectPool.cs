@@ -34,10 +34,7 @@ namespace CosmicCuration.Utilities
             return newItem.Item;
         }
 
-        protected virtual T CreateItem()
-        {
-            throw new NotImplementedException("CreateItem() method not implemented in derived class");
-        }
+        protected virtual T CreateItem() => throw new NotImplementedException("CreateItem() method not implemented in derived class");
 
         public void ReturnItem(T item)
         {
