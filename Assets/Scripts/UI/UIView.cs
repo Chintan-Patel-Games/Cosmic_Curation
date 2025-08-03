@@ -22,8 +22,16 @@ namespace CosmicCuration.UI
 
         private void Start()
         {
+            // Initialize the UI.
+            InitializeUI();
             currentScore = 0;
             IncrementScore(currentScore);
+        }
+
+        private void InitializeUI()
+        {
+            gameplayPanel.SetActive(true);
+            gameOverPanel.SetActive(false);
         }
 
         public void IncrementScore(int scoreToIncrement)

@@ -1,6 +1,6 @@
 using UnityEngine;
 using CosmicCuration.Player;
-using System.Threading.Tasks;
+using System.Collections;
 
 namespace CosmicCuration.PowerUps
 {
@@ -9,6 +9,7 @@ namespace CosmicCuration.PowerUps
         private PowerUpView powerUpView;
         private float activeDuration;
         private bool isActive;
+        private Coroutine timerCoroutine;
 
         public PowerUpController(PowerUpData powerUpData)
         {
@@ -21,16 +22,25 @@ namespace CosmicCuration.PowerUps
         {
             isActive = false;
             powerUpView.transform.position = spawnPosition;
-            powerUpView.gameObject.SetActive(true);
+            powerUpView.SetActive(true);
         }
 
-        public async void StartTimer()
+        public void StartTimer()
         {
             if (isActive)
             {
-                await Task.Delay(Mathf.RoundToInt(activeDuration * 1000));
-                Deactivate();
+                // Cancel existing timer if any
+                if (timerCoroutine != null)
+                    powerUpView.StopCoroutine(timerCoroutine);
+
+                timerCoroutine = powerUpView.StartCoroutine(TimerCoroutine());
             }
+        }
+
+        private IEnumerator TimerCoroutine()
+        {
+            yield return new WaitForSeconds(activeDuration);
+            Deactivate();
         }
 
         public void PowerUpTriggerEntered(GameObject collidedObject)
@@ -42,7 +52,7 @@ namespace CosmicCuration.PowerUps
         public virtual void Activate()
         {
             isActive = true;
-            powerUpView.gameObject.SetActive(false);
+            powerUpView.SetActive(false);
             StartTimer();
         }
 

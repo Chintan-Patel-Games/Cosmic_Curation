@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
 using UnityEngine;
 using CosmicCuration.Bullets;
 using CosmicCuration.Audio;
 using CosmicCuration.VFX;
+using System.Collections;
 
 namespace CosmicCuration.Player
 {
@@ -19,6 +19,9 @@ namespace CosmicCuration.Player
         private ShieldState currentShieldState;
         private int currentHealth;
         private float currentRateOfFire;
+
+        private Coroutine shootingCoroutine;
+        private Coroutine deathCoroutine;
 
         public PlayerController(PlayerView playerViewPrefab, PlayerScriptableObject playerScriptableObject, BulletPool bulletPool)
         {
@@ -72,15 +75,34 @@ namespace CosmicCuration.Player
         private void HandleShooting()
         {
             if (Input.GetKeyDown(KeyCode.Space))
-                FireWeapon();
+                StartFiring();
             if (Input.GetKeyUp(KeyCode.Space))
-                currentShootingState = ShootingState.NotFiring;
+                StopFiring();
         }
 
         // Firing Weapons:
-        private async void FireWeapon()
+        private void StartFiring()
         {
+            if (currentShootingState == ShootingState.Firing)
+                return;
+
             currentShootingState = ShootingState.Firing;
+            shootingCoroutine = playerView.StartCoroutine(FireWeaponCoroutine());
+        }
+
+        private void StopFiring()
+        {
+            currentShootingState = ShootingState.NotFiring;
+
+            if (shootingCoroutine != null)
+            {
+                playerView.StopCoroutine(shootingCoroutine);
+                shootingCoroutine = null;
+            }
+        }
+
+        private IEnumerator FireWeaponCoroutine()
+        {
             while (currentShootingState == ShootingState.Firing)
             {
                 switch (currentWeaponMode)
@@ -93,7 +115,8 @@ namespace CosmicCuration.Player
                         FireBulletAtPosition(playerView.turretTransform2);
                         break;
                 }
-                await Task.Delay(Mathf.RoundToInt(currentRateOfFire * 1000));
+
+                yield return new WaitForSeconds(currentRateOfFire);
             }
         }
 
@@ -120,22 +143,28 @@ namespace CosmicCuration.Player
             }
 
             if (currentHealth <= 0)
-                PlayerDeath();
+                TriggerPlayerDeath();
         }
 
-        private async void PlayerDeath()
+        private void TriggerPlayerDeath()
         {
-            Object.Destroy(playerView.gameObject);
-            
+            if (deathCoroutine == null)
+                deathCoroutine = playerView.StartCoroutine(PlayerDeathCoroutine());
+        }
+
+        private IEnumerator PlayerDeathCoroutine()
+        {
+            playerView.SetActive(false);
+
             GameService.Instance.GetVFXService().PlayVFXAtPosition(VFXType.PlayerExplosion, playerView.transform.position);
             GameService.Instance.GetSoundService().PlaySoundEffects(SoundType.PlayerDeath);
 
             currentShootingState = ShootingState.NotFiring;
             GameService.Instance.GetEnemyService().SetEnemySpawning(false);
             GameService.Instance.GetPowerUpService().SetPowerUpSpawning(false);
-            
-            // Wait for Player Ship Destruction.
-            await Task.Delay(playerScriptableObject.deathDelay * 1000);
+            Debug.Log("Player Died");
+            yield return new WaitForSeconds(playerScriptableObject.deathDelay);
+            Debug.Log("Showing Game Over UI");
             GameService.Instance.GetUIService().EnableGameOverUI();
         }
 
