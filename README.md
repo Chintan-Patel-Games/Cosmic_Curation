@@ -1,6 +1,6 @@
 # 🌌 Cosmic Curation
 
-**Cosmic Curation** is a fast-paced Unity game built around the concept of **object pooling** for optimal performance. As a player, you must collect mysterious cosmic artifacts while dodging or destroying incoming space debris. Designed as part of a modular systems training module, the project highlights memory-efficient spawning and reuse of game objects.
+**Cosmic Curation** is a fast-paced Unity game built around the concept of **object pooling** for optimal performance. As a player, you must collect mysterious cosmic artifacts while dodging or destroying incoming enemy spaceships. Designed as part of a modular systems training module, the project highlights memory-efficient spawning and reuse of game objects.
 
 ---
 
